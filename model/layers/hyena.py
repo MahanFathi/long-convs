@@ -5,6 +5,9 @@ from jax import numpy as jnp
 from flax import linen as nn
 
 from einops import rearrange
+from opt_einsum import contract
+
+import gin
 
 from utils import types
 
@@ -69,6 +72,7 @@ def get_exponential_module_initializer(
     return _initilizer
 
 
+@gin.configurable
 class HyenaFilter(nn.Module):
     """Hyena filter layer."""
 
@@ -143,15 +147,16 @@ class HyenaFilter(nn.Module):
         return y
 
 
+@gin.configurable
 class Hyena(nn.Module):
     """Hyena model."""
 
-    d_model: int
-    l_max: int
     order: int = 2
-    filter_order: int = 64
     dropout_rate: float = 0.1
     filter_dropout_rate: float = 0.0
+    l_max: int = gin.REQUIRED   # changed manually per task in gin config
+    d_model: int = gin.REQUIRED
+    filter_order: int = gin.REQUIRED
 
     def setup(self):
         """Initialize the model."""
